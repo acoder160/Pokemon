@@ -1,47 +1,69 @@
 import java.util.Scanner;
-public class InterfazPokemon {
-    private Scanner teclado;
-    public int rondaCombate = 0;
-    private boolean juego = true;
 
-    public InterfazPokemon(){
+/**
+ * Clase que representa la interfaz del juego de Pokémon.
+ * Permite la interacción del jugador con el sistema y gestiona el flujo del juego.
+ */
+public class InterfazPokemon {
+    private Scanner teclado; // Para leer la entrada del jugador.
+    public int rondaCombate = 0; // Ronda actual del combate.
+    private boolean juego = true; // Estado del juego (activo o finalizado).
+
+    /**
+     * Constructor que inicializa el scanner para la entrada del jugador.
+     */
+    public InterfazPokemon() {
         teclado = new Scanner(System.in);
     }
 
-
+    /**
+     * Método principal que gestiona el flujo del juego.
+     * Incluye la creación del Pokémon del jugador y los combates contra oponentes.
+     */
     public void Juego() {
         System.out.println("..........................................................\n" +
                 "...................--Crea tu pokemon--....................\n" +
                 "..........................................................");
-        // creamos el pokemon
-    Pokemon pokemonJugador = menuCreacionPokemonJugador();
-        while(juego){
-            rondaCombate++;
-    Pokemon pokemonRival = siguientePokemonRival();
-        System.out.println("Presentación del pokemon oponente:\n");
-        System.out.println(pokemonRival.toString());
-            pulsaEnter();
-        // iniciamos el combate
-       Pokemon ganador = Partida(pokemonJugador, pokemonRival);
-       if(ganador == pokemonRival){
-           System.out.println(pokemonRival.getNombre() + " te ha derrotado");
-           mostrarFinPartida();
-           juego = false;
-       }
-       else if(ganador == pokemonJugador){
-           System.out.println("Genial: Has derrotado a "+pokemonRival.getNombre());
-           pokemonJugador.subirNivel();
 
-            // ocurre si hemos ganado todos 3 pokemones rivales
-            if(rondaCombate == 3){
-                mostrarJuegoSuperado();
+        // Creación del Pokémon del jugador.
+        Pokemon pokemonJugador = menuCreacionPokemonJugador();
+
+        // Bucle principal del juego.
+        while (juego) {
+            rondaCombate++;
+            Pokemon pokemonRival = siguientePokemonRival();
+            System.out.println("Presentación del Pokémon oponente:\n");
+            System.out.println(pokemonRival.toString());
+            pulsaEnter();
+
+            // Inicio del combate.
+            Pokemon ganador = Partida(pokemonJugador, pokemonRival);
+            if (ganador == pokemonRival) {
+                System.out.println(pokemonRival.getNombre() + " te ha derrotado");
+                mostrarFinPartida();
                 juego = false;
-                break;
+            } else if (ganador == pokemonJugador) {
+                System.out.println("Genial: Has derrotado a " + pokemonRival.getNombre());
+                pokemonJugador.subirNivel();
+
+                // Verificar si se han derrotado a los tres rivales.
+                if (rondaCombate == 3) {
+                    mostrarJuegoSuperado();
+                    juego = false;
+                    break;
+                }
+                pulsaEnter();
             }
-           pulsaEnter();
-       }
-       }
+        }
     }
+
+    /**
+     * Método que gestiona una partida entre dos Pokémon.
+     *
+     * @param pokemonJugador Pokémon del jugador.
+     * @param pokemonRival   Pokémon rival.
+     * @return El Pokémon ganador de la partida.
+     */
     private Pokemon Partida(Pokemon pokemonJugador, Pokemon pokemonRival) {
         Combate combate = new Combate(pokemonJugador, pokemonRival);
         while (combate.Ganador() == null) {
@@ -53,75 +75,85 @@ public class InterfazPokemon {
             } else if (combate.Ganador() == pokemonJugador) {
                 return pokemonJugador;
             }
-            }
+        }
         return null;
     }
 
-
-
-    private Pokemon menuCreacionPokemonJugador(){
+    /**
+     * Menú de creación del Pokémon del jugador.
+     *
+     * @return El Pokémon creado por el jugador.
+     */
+    private Pokemon menuCreacionPokemonJugador() {
         System.out.println("Introduce el nombre del Pokémon:");
         String nombre = teclado.nextLine();
 
         System.out.println("Elige el tipo del Pokémon (1. Agua, 2. Fuego, 3. Tierra):");
         int n = teclado.nextInt();
-        teclado.nextLine(); // Limpia el salto de línea pendiente (CHATGPT) limpia el bufer del scaner
+        teclado.nextLine(); // Limpia el buffer del scanner.
         String tipo = "";
-        if(n == 1){
+
+        // Asignación del tipo basado en la elección del jugador.
+        if (n == 1) {
             tipo = "Agua";
-        }
-        else if(n == 2){
+        } else if (n == 2) {
             tipo = "Fuego";
-        }
-        else if(n == 3){
+        } else if (n == 3) {
             tipo = "Tierra";
+        } else {
+            System.out.println("Has introducido un número incorrecto");
+            juego = false; // Termina el juego si la entrada es inválida.
         }
-        else{
-            System.out.println("Has introducido numero incorrecto");
-            juego = false;
-        }
-        Pokemon pokemonJugador = new Pokemon(nombre, tipo);
-        return pokemonJugador;
+
+        return new Pokemon(nombre, tipo);
     }
 
+    /**
+     * Genera el siguiente Pokémon rival según la ronda actual.
+     *
+     * @return El Pokémon rival generado.
+     */
     public Pokemon siguientePokemonRival() {
-
         String nombre = "";
         String tipo = "";
 
-        if(rondaCombate == 1){
-             nombre = "Caterpie";
-             tipo = "tierra";
-        }
-        else if(rondaCombate == 2){
-            nombre = "Bulbasur";
-            tipo = "agua";
-        }
-        else if (rondaCombate == 3) {
+        if (rondaCombate == 1) {
+            nombre = "Caterpie";
+            tipo = "Tierra";
+        } else if (rondaCombate == 2) {
+            nombre = "Bulbasaur";
+            tipo = "Agua";
+        } else if (rondaCombate == 3) {
             nombre = "Charmander";
-            tipo = "fuego";
+            tipo = "Fuego";
         }
 
-        Pokemon pokemonRival = new Pokemon(nombre, tipo, rondaCombate);
-        return pokemonRival;
-
+        return new Pokemon(nombre, tipo, rondaCombate);
     }
 
-    private void mostrarJuegoSuperado(){
+    /**
+     * Muestra el mensaje de victoria al completar el juego.
+     */
+    private void mostrarJuegoSuperado() {
         System.out.println("++++++++++ ENHORABUENA +++++++++++");
         System.out.println("+++++ HAS SUPERADO EL JUEGO ++++++");
         System.out.println("++++ ERES UN MAESTRO POKEMON +++++");
     }
 
-    private void mostrarFinPartida(){
+    /**
+     * Muestra el mensaje de derrota al perder el juego.
+     */
+    private void mostrarFinPartida() {
         System.out.println("++++++++++ LO SIENTO +++++++++++");
         System.out.println("+++++ HAS SIDO ELIMINADO ++++++");
-        System.out.println("+++++ VUELVE A INTENTARLO +++++");
+        System.out.println("+++++ VUELVE A INTENTARLO ++++++");
     }
-    // para mas reutilizacion del codigo
-    private void pulsaEnter(){
+
+    /**
+     * Método para pausar el juego y continuar cuando se presiona ENTER.
+     */
+    private void pulsaEnter() {
         System.out.println("\nPULSA ENTER PARA CONTINUAR");
         teclado.nextLine();
     }
-
 }
